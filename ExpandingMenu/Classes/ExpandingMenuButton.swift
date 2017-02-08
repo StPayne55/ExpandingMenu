@@ -38,30 +38,6 @@ open class ExpandingMenuButton: UIView, UIGestureRecognizerDelegate {
     // MARK: Public Properties
     open var menuItemMargin: CGFloat = 16.0
     
-    open var allowSounds: Bool = true {
-        didSet {
-            self.configureSounds()
-        }
-    }
-    
-    open var expandingSoundPath: String = Bundle(url: Bundle(for: ExpandingMenuButton.classForCoder()).url(forResource: "ExpandingMenu", withExtension: "bundle")!)?.path(forResource: "expanding", ofType: "caf") ?? "" {
-        didSet {
-            self.configureSounds()
-        }
-    }
-    
-    open var foldSoundPath: String = Bundle(url: Bundle(for: ExpandingMenuButton.classForCoder()).url(forResource: "ExpandingMenu", withExtension: "bundle")!)?.path(forResource: "fold", ofType: "caf") ?? "" {
-        didSet {
-            self.configureSounds()
-        }
-    }
-    
-    open var selectedSoundPath: String = Bundle(url: Bundle(for: ExpandingMenuButton.classForCoder()).url(forResource: "ExpandingMenu", withExtension: "bundle")!)?.path(forResource: "selected", ofType: "caf") ?? "" {
-        didSet {
-            self.configureSounds()
-        }
-    }
-    
     open var bottomViewColor: UIColor = UIColor.black {
         didSet {
             self.bottomView.backgroundColor = bottomViewColor
@@ -98,10 +74,6 @@ open class ExpandingMenuButton: UIView, UIGestureRecognizerDelegate {
     fileprivate var bottomView: UIView = UIView()
     fileprivate var centerButton: UIButton = UIButton()
     fileprivate var menuItems: [ExpandingMenuItem] = []
-    
-    fileprivate var foldSound: SystemSoundID = 0
-    fileprivate var expandingSound: SystemSoundID = 0
-    fileprivate var selectedSound: SystemSoundID = 0
     
     fileprivate var isExpanding: Bool = false
     fileprivate var isAnimating: Bool = false
@@ -151,8 +123,6 @@ open class ExpandingMenuButton: UIView, UIGestureRecognizerDelegate {
             configureViewsLayoutWithButtonSize(frame.size)
             self.defaultCenterPoint = self.center
         }
-        
-        self.configureSounds()
     }
     
     public convenience init(centerImage: UIImage, centerHighlightedImage: UIImage) {
@@ -174,10 +144,7 @@ open class ExpandingMenuButton: UIView, UIGestureRecognizerDelegate {
         self.isAnimating = true
         
         let selectedIndex: Int = item.index
-        
-        if self.allowSounds == true {
-            AudioServicesPlaySystemSound(self.selectedSound)
-        }
+
         
         // Excute the explode animation when the item is seleted
         //
@@ -224,24 +191,7 @@ open class ExpandingMenuButton: UIView, UIGestureRecognizerDelegate {
             }
         }
     }
-    
-    // MARK: - Configure Sounds
-    fileprivate func configureSounds() {
-        if self.allowSounds == true {
-            let expandingSoundUrl = URL(fileURLWithPath: self.expandingSoundPath)
-            AudioServicesCreateSystemSoundID(expandingSoundUrl as CFURL, &self.expandingSound)
-            
-            let foldSoundUrl = URL(fileURLWithPath: self.foldSoundPath)
-            AudioServicesCreateSystemSoundID(foldSoundUrl as CFURL, &self.foldSound)
-            
-            let selectedSoundUrl = URL(fileURLWithPath: self.selectedSoundPath)
-            AudioServicesCreateSystemSoundID(selectedSoundUrl as CFURL, &self.selectedSound)
-        } else {
-            AudioServicesDisposeSystemSoundID(self.expandingSound)
-            AudioServicesDisposeSystemSoundID(self.foldSound)
-            AudioServicesDisposeSystemSoundID(self.selectedSound)
-        }
-    }
+
     
     // MARK: - Calculate The Distance From Center Button
     fileprivate func makeDistanceFromCenterButton(_ itemSize: CGSize, lastDisance: CGFloat, lastItemSize: CGSize) -> CGFloat {
@@ -268,10 +218,6 @@ open class ExpandingMenuButton: UIView, UIGestureRecognizerDelegate {
     fileprivate func foldMenuItems() {
         self.willDismissMenuItems?(self)
         self.isAnimating = true
-        
-        if self.allowSounds == true {
-            AudioServicesPlaySystemSound(self.foldSound)
-        }
         
         let currentAngle: CGFloat = 90.0
         
@@ -410,10 +356,6 @@ open class ExpandingMenuButton: UIView, UIGestureRecognizerDelegate {
     fileprivate func expandMenuItems() {
         self.willPresentMenuItems?(self)
         self.isAnimating = false
-        
-        if self.allowSounds == true {
-            AudioServicesPlaySystemSound(self.expandingSound)
-        }
         
         // Configure center button expanding
         //
